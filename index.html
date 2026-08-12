@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>988 FM</title>
+  <style>
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+         font-family:Arial,sans-serif;background:#111;color:#fff}
+    .box{text-align:center;width:min(90%,420px)}
+    h1{font-size:42px;margin:0 0 8px}
+    p{opacity:.7;margin:0 0 28px}
+    button{font-size:24px;padding:18px 42px;border:0;border-radius:14px;cursor:pointer}
+    #status{margin-top:20px;opacity:.75;min-height:24px}
+  </style>
+</head>
+<body>
+  <main class="box">
+    <h1>988 FM</h1>
+    <p>Malaysia · Live Radio</p>
+    <button id="play">▶ PLAY</button>
+    <div id="status">Ready</div>
+    <audio id="audio" preload="none"></audio>
+  </main>
+
+<script>
+const stream = "https://28103.live.streamtheworld.com/988_FMAAC.aac";
+const audio = document.getElementById("audio");
+const button = document.getElementById("play");
+const status = document.getElementById("status");
+
+button.onclick = async () => {
+  if (audio.paused) {
+    audio.src = stream;
+    try {
+      await audio.play();
+      button.textContent = "⏸ PAUSE";
+      status.textContent = "Playing 988 FM";
+    } catch (e) {
+      status.textContent = "Unable to play this stream in this browser.";
+    }
+  } else {
+    audio.pause();
+    button.textContent = "▶ PLAY";
+    status.textContent = "Paused";
+  }
+};
+
+audio.onerror = () => {
+  status.textContent = "Stream unavailable or not supported by this browser.";
+};
+</script>
+</body>
+</html>
