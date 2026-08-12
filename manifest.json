@@ -1,8 +1,8 @@
 {
   "name": "988 FM",
-  "short_name": "988",
-  "description": "988 FM Malaysia Live Radio",
+  "short_name": "988 FM",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0b0b0b",
   "theme_color": "#0b0b0b",
@@ -17,6 +17,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "scope": "./"
+  ]
 }

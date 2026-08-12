@@ -1,19 +1,14 @@
 # 988 FM
 
-A simple 988 FM Malaysia live-radio web app/PWA.
+988 FM live-radio web app.
 
-## GitHub Pages
-Upload all files in this package to the ROOT of your `988-fm` repository and replace the old files.
+This version uses the transparent 988 logo with NO white panel behind it.
 
-## Oppo
-Open the GitHub Pages URL and choose “Add to Home screen”. The page attempts to start playback automatically. If Android/ColorOS blocks autoplay, press PLAY 988.
+Upload/replace all files in this package in the ROOT of the `988-fm` GitHub repository.
 
-## Logo
-Uses the 988 logo image supplied by the user from the Wikimedia file:
-https://en.wikipedia.org/wiki/File:988_Logo_-_Transparent.png
+After GitHub Pages updates, refresh the page. If the old white logo is still cached, clear the browser cache or open the page once in an incognito tab.
 
-## Stream
+The page attempts autoplay; if Android/ColorOS blocks autoplay, press PLAY 988.
+
 Current stream:
 https://28103.live.streamtheworld.com/988_FMAAC.aac
-
-The stream provider may change the URL in future.
