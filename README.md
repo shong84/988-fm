@@ -1,14 +1,21 @@
-# 988 FM
+# 988 FM — official-logo version
 
-这是一个简洁的 988 FM 网页播放器/PWA。
+This version uses the 988 logo file linked by the user:
+https://en.wikipedia.org/wiki/File:988_Logo_-_Transparent.png
 
-## 上传到 GitHub Pages
-把整个文件夹里的文件上传到现有 repository 的根目录，并确保 `index.html` 在根目录。
+The Wikimedia Commons page identifies the source as 988 FM and lists the file as public domain, while noting trademark considerations. Verify any branding/trademark requirements before public commercial use.
+
+## GitHub Pages
+Upload all files in this folder to the ROOT of your existing `988-fm-tesla` repository. Replace the old `index.html`, manifest, icons, and service worker.
 
 ## Oppo
-打开 GitHub Pages 网址后，可用浏览器的“添加到主屏幕”安装成 988 FM 图标。首次播放若被系统阻止，请按 PLAY 988。
+Open the GitHub Pages URL and use the browser's "Add to Home screen". The shortcut will use the 988 logo.
 
 ## Tesla
-交车后在 Tesla Browser 打开 GitHub Pages 网址并按 PLAY 988 测试。
+After delivery, open the GitHub Pages URL in Tesla Browser and press PLAY 988. Autoplay may be blocked by the browser.
 
-注意：页面使用的网络串流可能由电台/串流服务方调整；如果未来串流地址改变，需要更新 `index.html`。
+## Stream
+The player currently uses:
+https://28103.live.streamtheworld.com/988_FMAAC.aac
+
+The stream provider may change this URL in future.

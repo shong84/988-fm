@@ -9,29 +9,29 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="988 FM">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-32.png">
-<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>988 FM</title>
 <style>
-*{box-sizing:border-box} html,body{margin:0;min-height:100%;background:#111;color:#fff;font-family:Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#0b0b0b;color:#fff;font-family:Arial,sans-serif}
 body{display:flex;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh}
 main{text-align:center;width:min(92vw,520px);padding:28px}
-.logo{font-size:58px;font-weight:900;letter-spacing:-4px;color:#ef233c}
-.live{font-size:15px;opacity:.75;margin:4px 0 34px}
-.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ef233c;margin-right:7px}
-button{border:0;border-radius:999px;font-size:22px;font-weight:700;padding:18px 34px;cursor:pointer}
-#play{background:#ef233c;color:#fff;min-width:210px}
+.logo{width:min(58vw,260px);height:auto;display:block;margin:0 auto 14px}
+.live{font-size:15px;opacity:.72;margin:4px 0 34px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ed174c;margin-right:7px}
+button{border:0;border-radius:999px;font-size:22px;font-weight:700;padding:18px 34px;cursor:pointer;background:#ed174c;color:#fff;min-width:210px}
 #status{margin-top:22px;min-height:24px;opacity:.75}
-.small{font-size:13px;opacity:.45;margin-top:36px}
+.small{font-size:13px;opacity:.42;margin-top:36px}
 </style>
 </head>
 <body>
 <main>
-  <div class="logo">988</div>
+  <img class="logo" src="988-logo-original.png" alt="988 FM">
   <div class="live"><span class="dot"></span>LIVE · Malaysia Radio</div>
   <button id="play">▶ PLAY 988</button>
   <div id="status">Ready</div>
-  <div class="small">988 FM shortcut · Mobile / Tesla Browser</div>
+  <div class="small">988 FM · Mobile / Tesla Browser</div>
   <audio id="audio" preload="none" playsinline></audio>
 </main>
 <script>
@@ -48,12 +48,10 @@ async function playRadio() {
     status.textContent = "Playing 988 FM";
     if ("mediaSession" in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: "988 FM",
-        artist: "Malaysia Live Radio",
-        album: "988 FM"
+        title: "988 FM", artist: "Malaysia Live Radio", album: "988 FM"
       });
-      navigator.mediaSession.setActionHandler("play", () => audio.play());
-      navigator.mediaSession.setActionHandler("pause", () => audio.pause());
+      try { navigator.mediaSession.setActionHandler("play", () => audio.play()); } catch(e){}
+      try { navigator.mediaSession.setActionHandler("pause", () => audio.pause()); } catch(e){}
     }
   } catch(e) {
     status.textContent = "请按一次 PLAY 988（浏览器可能禁止自动播放）";
@@ -63,11 +61,7 @@ btn.addEventListener("click", () => audio.paused ? playRadio() : audio.pause());
 audio.addEventListener("play", () => { btn.textContent="⏸ PAUSE 988"; status.textContent="Playing 988 FM"; });
 audio.addEventListener("pause", () => { btn.textContent="▶ PLAY 988"; status.textContent="Paused"; });
 audio.addEventListener("error", () => { status.textContent="Stream unavailable or unsupported."; });
-
-window.addEventListener("load", () => {
-  // Best-effort autoplay. Android browsers may require a user tap.
-  playRadio();
-});
+window.addEventListener("load", () => playRadio());
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(()=>{});
