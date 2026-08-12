@@ -1,4 +1,4 @@
-const CACHE='988-fm-github-final-v4';
+const CACHE='988-fm-large-icon-v4';
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(keys=>Promise.all(keys.map(k=>k===CACHE?null:caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch', e => {

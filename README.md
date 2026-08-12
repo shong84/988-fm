@@ -1,17 +1,13 @@
 # 988 FM
 
-988 FM Malaysia live-radio web app/PWA.
+988 FM Malaysia live-radio PWA.
 
-## GitHub Pages
-Upload **all files in this package** to the ROOT of your `988-fm` repository and replace the existing files.
+This package updates the home-screen icons so the 988 logo fills much more of the icon area.
+It includes a separate Android maskable icon and updated PWA manifest.
 
-This version:
-- uses a transparent 988 logo (no white/checkerboard background);
-- contains no Tesla wording;
-- keeps PWA home-screen support;
-- attempts automatic playback.
+Upload ALL files in this package to the ROOT of the `shong84/988-fm` GitHub repository and replace the existing files.
 
-If the old page is still cached after deployment, refresh the page or open it once in an incognito/private tab.
+IMPORTANT:
+After updating GitHub Pages, remove the old 988 FM shortcut from the phone and install/add it to the home screen again. Android may keep the old icon cached otherwise.
 
-Stream:
-https://28103.live.streamtheworld.com/988_FMAAC.aac
+Web page logo remains separate from the launcher icon.
