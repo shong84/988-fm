@@ -1,13 +1,14 @@
-# 988 FM
+# 988 FM — tuned version
 
-988 FM Malaysia live-radio PWA.
+This version is based on the previously working autoplay build.
 
-This package updates the home-screen icons so the 988 logo fills much more of the icon area.
-It includes a separate Android maskable icon and updated PWA manifest.
+Autoplay logic intentionally preserved:
+- `<audio preload="auto" autoplay playsinline>`
+- play on page load
+- second play attempt after 500 ms
 
-Upload ALL files in this package to the ROOT of the `shong84/988-fm` GitHub repository and replace the existing files.
+Only the UI, reconnection handling, and service-worker caching were fine-tuned.
+The live stream URL and autoplay mechanism were not changed.
 
-IMPORTANT:
-After updating GitHub Pages, remove the old 988 FM shortcut from the phone and install/add it to the home screen again. Android may keep the old icon cached otherwise.
-
-Web page logo remains separate from the launcher icon.
+Upload/replace all files in this package in the GitHub Pages repository.
+Do not remove `988-logo-transparent.png`.
