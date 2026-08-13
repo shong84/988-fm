@@ -1,183 +1,107 @@
-from pathlib import Path
-from PIL import Image
-import shutil, zipfile, json, re
-
-src = Path("/mnt/data/988-fm-github-final")
-out = Path("/mnt/data/988-fm-large-icon")
-if out.exists():
-    shutil.rmtree(out)
-out.mkdir()
-
-# Copy the existing complete GitHub package.
-for p in src.iterdir():
-    if p.is_file():
-        shutil.copy2(p, out / p.name)
-
-# Use the existing 988 artwork and make it much larger inside the launcher icons.
-source = Image.open(out / "icon-512.png").convert("RGBA")
-bbox = source.getbbox()
-logo_crop = source.crop(bbox)
-
-def make_icon(size, logo_fraction=0.84):
-    canvas = Image.new("RGBA", (size, size), (255, 255, 255, 255))
-    # Keep a little breathing room, but make the logo substantially larger.
-    target_w = int(size * logo_fraction)
-    target_h = int(target_w * logo_crop.height / logo_crop.width)
-    logo = logo_crop.resize((target_w, target_h), Image.Resampling.LANCZOS)
-    x = (size - target_w) // 2
-    y = (size - target_h) // 2
-    canvas.alpha_composite(logo, (x, y))
-    return canvas
-
-make_icon(512, 0.86).save(out / "icon-512.png", optimize=True)
-make_icon(192, 0.86).save(out / "icon-192.png", optimize=True)
-make_icon(180, 0.86).save(out / "apple-touch-icon.png", optimize=True)
-make_icon(96, 0.86).save(out / "favicon.png", optimize=True)
-
-# A maskable icon with slightly more safe-zone margin for Android launchers.
-make_icon(512, 0.70).save(out / "icon-512-maskable.png", optimize=True)
-
-manifest_path = out / "manifest.json"
-manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
-manifest.update({
-    "name": "988 FM",
-    "short_name": "988 FM",
-    "start_url": "./",
-    "scope": "./",
-    "display": "standalone",
-    "background_color": "#0b0b0b",
-    "theme_color": "#0b0b0b",
-    "icons": [
-        {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-        {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-        {"src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
-    ]
-})
-manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
-
-# Bump service worker cache to force the new icons to be fetched.
-sw_path = out / "sw.js"
-if sw_path.exists():
-    sw = sw_path.read_text(encoding="utf-8")
-    sw = re.sub(r"988-fm-[A-Za-z0-9_-]+", "988-fm-large-icon-v4", sw)
-    sw_path.write_text(sw, encoding="utf-8")
-
-(out / "README.md").write_text(
-"""# 988 FM
-
-988 FM Malaysia live-radio PWA.
-
-This package updates the home-screen icons so the 988 logo fills much more of the icon area.
-It includes a separate Android maskable icon and updated PWA manifest.
-
-Upload ALL files in this package to the ROOT of the `shong84/988-fm` GitHub repository and replace the existing files.
-
-IMPORTANT:
-After updating GitHub Pages, remove the old 988 FM shortcut from the phone and install/add it to the home screen again. Android may keep the old icon cached otherwise.
-
-Web page logo remains separate from the launcher icon.
-""", encoding="utf-8")
-
-zip_path = Path("/mnt/data/988-fm-large-icon-github.zip")
-with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-    for p in out.iterdir():
-        z.write(p, p.name)
-
-print(zip_path)
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#050505">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="988 FM">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>988 FM</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:#050505;color:#fff;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+body{display:flex;align-items:center;justify-content:center}
+.app{width:min(720px,100vw);height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5vh 6vw;gap:clamp(18px,4vh,36px)}
+.logo{width:min(62vw,360px);height:min(45vh,300px);object-fit:contain;display:block}
+.status{font-size:clamp(18px,3vw,28px);font-weight:700;letter-spacing:.06em}
+.live{color:#f0164f}.connecting{color:#aaa}
+.station{font-size:clamp(22px,4vw,32px);font-weight:700;margin-top:-10px}
+button{border:0;border-radius:999px;width:min(68vw,300px);height:clamp(72px,13vw,96px);font-size:clamp(22px,4vw,32px);font-weight:800;background:#f0164f;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.97)}
+.hint{font-size:clamp(13px,2.2vw,17px);color:#777;text-align:center;max-width:520px;line-height:1.4}
+</style>
+</head>
+<body>
+<main class="app" aria-label="988 FM live radio">
+  <img class="logo" src="988-logo-original.png" alt="988 FM">
+  <div id="status" class="status connecting">CONNECTING…</div>
+  <div class="station">988 FM</div>
+  <button id="play" type="button">▶ PLAY 988</button>
+  <div id="hint" class="hint">If automatic playback is blocked, tap PLAY once.</div>
+  <audio id="audio" preload="none" playsinline></audio>
+</main>
+<script>
+(() => {
+  // Current working HTTPS stream identified for 988 FM.
   const STREAM = "https://28103.live.streamtheworld.com/988_FMAAC.aac";
   const audio = document.getElementById("audio");
   const play = document.getElementById("play");
   const status = document.getElementById("status");
   const hint = document.getElementById("hint");
-
   audio.src = STREAM;
 
-  function setStatus(text, cls) {
-    status.textContent = text;
-    status.className = "status " + (cls || "");
-  }
-
-  function setPlayingUI(on) {
-    play.textContent = on ? "❚❚ PAUSE" : "▶ PLAY";
-  }
+  const ui = (text, cls="") => { status.textContent=text; status.className="status "+cls; };
+  const playingUI = () => {
+    play.textContent = "❚❚ PAUSE 988";
+    ui("● LIVE","live");
+    hint.textContent = "Playing 988 FM";
+  };
+  const pausedUI = () => {
+    play.textContent = "▶ PLAY 988";
+    ui("READY","");
+    hint.textContent = "Tap PLAY once to start 988 FM.";
+  };
 
   async function start() {
-    setStatus("CONNECTING…", "connecting");
+    ui("CONNECTING…","connecting");
     try {
       await audio.play();
-      setPlayingUI(true);
-      setStatus("● LIVE", "live");
-      hint.textContent = "Playing 988 FM";
+      playingUI();
     } catch (e) {
-      setPlayingUI(false);
-      setStatus("● READY", "");
-      hint.textContent = "Tap PLAY once to start 988 FM.";
+      pausedUI();
     }
   }
-
   function stop() {
     audio.pause();
-    setPlayingUI(false);
-    setStatus("PAUSED", "");
-    hint.textContent = "Tap PLAY to resume 988 FM.";
+    pausedUI();
   }
+  play.addEventListener("click", () => audio.paused ? start() : stop());
 
-  play.addEventListener("click", () => {
-    if (audio.paused) start(); else stop();
-  });
+  audio.addEventListener("playing", playingUI);
+  audio.addEventListener("waiting", () => { if (!audio.paused) ui("BUFFERING…","connecting"); });
+  audio.addEventListener("pause", () => { if (!audio.ended) { play.textContent="▶ PLAY 988"; } });
 
-  audio.addEventListener("playing", () => {
-    setPlayingUI(true);
-    setStatus("● LIVE", "live");
-    hint.textContent = "Playing 988 FM";
-  });
-
-  audio.addEventListener("waiting", () => {
-    if (!audio.paused) setStatus("BUFFERING…", "connecting");
-  });
-
-  audio.addEventListener("stalled", () => {
-    if (!audio.paused) reconnect();
-  });
-
-  audio.addEventListener("error", () => {
-    if (!audio.paused) reconnect();
-  });
-
-  let reconnectTimer = null;
-  let reconnectDelay = 1500;
-
-  async function reconnect() {
-    clearTimeout(reconnectTimer);
-    setStatus("RECONNECTING…", "connecting");
-    reconnectTimer = setTimeout(async () => {
+  let timer = null, delay = 1500;
+  function reconnect() {
+    clearTimeout(timer);
+    if (audio.paused) return;
+    ui("RECONNECTING…","connecting");
+    timer = setTimeout(async () => {
       try {
         audio.load();
         await audio.play();
-        reconnectDelay = 1500;
+        delay = 1500;
       } catch (e) {
-        reconnectDelay = Math.min(reconnectDelay * 2, 15000);
+        delay = Math.min(delay * 2, 15000);
         reconnect();
       }
-    }, reconnectDelay);
+    }, delay);
   }
+  audio.addEventListener("stalled", reconnect);
+  audio.addEventListener("error", reconnect);
 
-  audio.addEventListener("pause", () => {
-    if (!audio.ended) setPlayingUI(false);
-  });
-
-  // Tesla/Browser Media Miniplayer integration where supported.
   if ("mediaSession" in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: "988 FM",
-      artist: "988 FM Malaysia",
-      album: "Live Radio"
+      title:"988 FM", artist:"988 FM Malaysia", album:"Live Radio"
     });
-    navigator.mediaSession.setActionHandler("play", start);
-    navigator.mediaSession.setActionHandler("pause", stop);
+    try { navigator.mediaSession.setActionHandler("play", start); } catch(e){}
+    try { navigator.mediaSession.setActionHandler("pause", stop); } catch(e){}
   }
 
-  // Try autoplay immediately. If the browser blocks it, the large PLAY button remains.
+  // Attempt autoplay; browser policy may require one tap.
   start();
 })();
 </script>
