@@ -17,10 +17,10 @@
 html,body{margin:0;min-height:100%;background:#0b0b0b;color:#fff;font-family:Arial,sans-serif}
 body{display:flex;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh}
 main{text-align:center;width:min(92vw,520px);padding:28px}
-.logo-wrap{width:min(82vw,400px);height:min(48vw,245px);margin:0 auto 18px;background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden}.logo{width:88%;height:88%;object-fit:contain;display:block;background:transparent}
-.live{font-size:16px;opacity:.72;margin:4px 0 34px}
+.logo-wrap{width:min(74vw,360px);height:min(42vw,210px);margin:0 auto 18px;background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden}.logo{width:88%;height:88%;object-fit:contain;display:block;background:transparent}
+.live{font-size:15px;opacity:.72;margin:4px 0 34px}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ed174c;margin-right:7px}
-button{border:0;border-radius:999px;font-size:22px;font-weight:700;padding:18px 34px;cursor:pointer;background:#ed174c;color:#fff;min-width:240px}
+button{border:0;border-radius:999px;font-size:22px;font-weight:700;padding:18px 34px;cursor:pointer;background:#ed174c;color:#fff;min-width:210px}
 #status{margin-top:22px;min-height:24px;opacity:.75}
 .small{font-size:13px;opacity:.42;margin-top:36px}
 </style>
@@ -59,23 +59,7 @@ async function playRadio() {
 btn.addEventListener("click", () => audio.paused ? playRadio() : audio.pause());
 audio.addEventListener("play", () => { btn.textContent="⏸ PAUSE 988"; status.textContent="Playing 988 FM"; });
 audio.addEventListener("pause", () => { btn.textContent="▶ PLAY 988"; status.textContent="Paused"; });
-let reconnectTimer = null;
-let reconnectDelay = 1200;
-function reconnectRadio() {
-  if (audio.paused) return;
-  clearTimeout(reconnectTimer);
-  status.textContent = "Reconnecting…";
-  reconnectTimer = setTimeout(() => {
-    try {
-      audio.load();
-      playRadio().then(() => { reconnectDelay = 1200; }).catch(() => {});
-    } catch(e) {}
-    reconnectDelay = Math.min(reconnectDelay * 2, 12000);
-  }, reconnectDelay);
-}
-audio.addEventListener("error", () => reconnectRadio());
-audio.addEventListener("stalled", () => reconnectRadio());
-audio.addEventListener("playing", () => { reconnectDelay = 1200; status.textContent="● LIVE · Playing 988 FM"; });
+audio.addEventListener("error", () => { status.textContent="Stream unavailable or unsupported."; });
 window.addEventListener("load", () => { playRadio(); setTimeout(playRadio, 500); });
 
 if ("serviceWorker" in navigator) {
