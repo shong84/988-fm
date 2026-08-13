@@ -1,109 +1,70 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#050505">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="988 FM">
-<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>988 FM</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;background:#050505;color:#fff;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
-body{display:flex;align-items:center;justify-content:center}
-.app{width:min(720px,100vw);height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5vh 6vw;gap:clamp(18px,4vh,36px)}
-.logo{width:min(62vw,360px);height:min(45vh,300px);object-fit:contain;display:block}
-.status{font-size:clamp(18px,3vw,28px);font-weight:700;letter-spacing:.06em}
-.live{color:#f0164f}.connecting{color:#aaa}
-.station{font-size:clamp(22px,4vw,32px);font-weight:700;margin-top:-10px}
-button{border:0;border-radius:999px;width:min(68vw,300px);height:clamp(72px,13vw,96px);font-size:clamp(22px,4vw,32px);font-weight:800;background:#f0164f;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent}
-button:active{transform:scale(.97)}
-.hint{font-size:clamp(13px,2.2vw,17px);color:#777;text-align:center;max-width:520px;line-height:1.4}
+html,body{margin:0;min-height:100%;background:#0b0b0b;color:#fff;font-family:Arial,sans-serif}
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh}
+main{text-align:center;width:min(92vw,520px);padding:28px}
+.logo-wrap{width:min(74vw,360px);height:min(42vw,210px);margin:0 auto 18px;background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden}.logo{width:88%;height:88%;object-fit:contain;display:block;background:transparent}
+.live{font-size:15px;opacity:.72;margin:4px 0 34px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ed174c;margin-right:7px}
+button{border:0;border-radius:999px;font-size:22px;font-weight:700;padding:18px 34px;cursor:pointer;background:#ed174c;color:#fff;min-width:210px}
+#status{margin-top:22px;min-height:24px;opacity:.75}
+.small{font-size:13px;opacity:.42;margin-top:36px}
 </style>
 </head>
 <body>
-<main class="app" aria-label="988 FM live radio">
-  <img class="logo" src="988-logo-original.png" alt="988 FM">
-  <div id="status" class="status connecting">CONNECTING…</div>
-  <div class="station">988 FM</div>
-  <button id="play" type="button">▶ PLAY 988</button>
-  <div id="hint" class="hint">If automatic playback is blocked, tap PLAY once.</div>
-  <audio id="audio" preload="none" playsinline></audio>
+<main>
+  <div class="logo-wrap"><img class="logo" src="988-logo-transparent.png" alt="988 FM"></div>
+  <div class="live"><span class="dot"></span>LIVE · Malaysia Radio</div>
+  <button id="play">▶ PLAY 988</button>
+  <div id="status">Ready</div>
+  <div class="small">988 FM · Live Radio</div>
+  <audio id="audio" preload="auto" autoplay playsinline src="https://28103.live.streamtheworld.com/988_FMAAC.aac"></audio>
 </main>
 <script>
-(() => {
-  // Current working HTTPS stream identified for 988 FM.
-  const STREAM = "https://28103.live.streamtheworld.com/988_FMAAC.aac";
-  const audio = document.getElementById("audio");
-  const play = document.getElementById("play");
-  const status = document.getElementById("status");
-  const hint = document.getElementById("hint");
-  audio.src = STREAM;
+const STREAM = "https://28103.live.streamtheworld.com/988_FMAAC.aac";
+const audio = document.getElementById("audio");
+const btn = document.getElementById("play");
+const status = document.getElementById("status");
 
-  const ui = (text, cls="") => { status.textContent=text; status.className="status "+cls; };
-  const playingUI = () => {
-    play.textContent = "❚❚ PAUSE 988";
-    ui("● LIVE","live");
-    hint.textContent = "Playing 988 FM";
-  };
-  const pausedUI = () => {
-    play.textContent = "▶ PLAY 988";
-    ui("READY","");
-    hint.textContent = "Tap PLAY once to start 988 FM.";
-  };
-
-  async function start() {
-    ui("CONNECTING…","connecting");
-    try {
-      await audio.play();
-      playingUI();
-    } catch (e) {
-      pausedUI();
+async function playRadio() {
+  try {
+    await audio.play();
+    btn.textContent = "⏸ PAUSE 988";
+    status.textContent = "Playing 988 FM";
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: "988 FM", artist: "Malaysia Live Radio", album: "988 FM"
+      });
+      try { navigator.mediaSession.setActionHandler("play", () => audio.play()); } catch(e){}
+      try { navigator.mediaSession.setActionHandler("pause", () => audio.pause()); } catch(e){}
     }
+  } catch(e) {
+    status.textContent = "请按一次 PLAY 988（浏览器可能禁止自动播放）";
   }
-  function stop() {
-    audio.pause();
-    pausedUI();
-  }
-  play.addEventListener("click", () => audio.paused ? start() : stop());
+}
+btn.addEventListener("click", () => audio.paused ? playRadio() : audio.pause());
+audio.addEventListener("play", () => { btn.textContent="⏸ PAUSE 988"; status.textContent="Playing 988 FM"; });
+audio.addEventListener("pause", () => { btn.textContent="▶ PLAY 988"; status.textContent="Paused"; });
+audio.addEventListener("error", () => { status.textContent="Stream unavailable or unsupported."; });
+window.addEventListener("load", () => { playRadio(); setTimeout(playRadio, 500); });
 
-  audio.addEventListener("playing", playingUI);
-  audio.addEventListener("waiting", () => { if (!audio.paused) ui("BUFFERING…","connecting"); });
-  audio.addEventListener("pause", () => { if (!audio.ended) { play.textContent="▶ PLAY 988"; } });
-
-  let timer = null, delay = 1500;
-  function reconnect() {
-    clearTimeout(timer);
-    if (audio.paused) return;
-    ui("RECONNECTING…","connecting");
-    timer = setTimeout(async () => {
-      try {
-        audio.load();
-        await audio.play();
-        delay = 1500;
-      } catch (e) {
-        delay = Math.min(delay * 2, 15000);
-        reconnect();
-      }
-    }, delay);
-  }
-  audio.addEventListener("stalled", reconnect);
-  audio.addEventListener("error", reconnect);
-
-  if ("mediaSession" in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title:"988 FM", artist:"988 FM Malaysia", album:"Live Radio"
-    });
-    try { navigator.mediaSession.setActionHandler("play", start); } catch(e){}
-    try { navigator.mediaSession.setActionHandler("pause", stop); } catch(e){}
-  }
-
-  // Attempt autoplay; browser policy may require one tap.
-  start();
-})();
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
 </script>
 </body>
 </html>
